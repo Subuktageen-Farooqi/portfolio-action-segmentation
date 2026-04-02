@@ -1,0 +1,35 @@
+experiment:
+  name: "baseline"
+
+data:
+  root: "./data"
+  split_strategy: "group_actor"
+  num_workers: 4
+  metadata_file: "metadata.csv"
+  sequence_length: null
+
+modalities:
+  use_rgb: true
+  use_keypoints: false
+  use_boxes: false
+  use_masks: false
+
+model:
+  backbone: "resnet18"
+  temporal: "tcn"         # options: none, tcn, transformer
+  fusion: "late"          # options: none, concat, gated
+  hidden_dim: 256
+  num_classes: 11
+
+training:
+  epochs: 30
+  batch_size: 8
+  lr: 0.001
+  weight_decay: 1e-4
+  seed: 42
+  patience: 7
+  label_smoothing: 0.0
+
+evaluation:
+  metrics: ["mAP", "F1", "accuracy"]
+  save_best: true
