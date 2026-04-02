@@ -113,10 +113,15 @@ def build_splits(metadata_df: pd.DataFrame, seed: int) -> SplitInfo:
     train_idx, holdout_idx = next(gss1.split(indices, groups=groups))
 
     holdout_groups = groups[holdout_idx]
-    gss2 = GroupShuffleSplit(n_splits=1, test_size=0.50, random_state=seed)
-    rel_val_idx, rel_test_idx = next(gss2.split(holdout_idx, groups=holdout_groups))
-    val_idx = holdout_idx[rel_val_idx]
-    test_idx = holdout_idx[rel_test_idx]
+    unique_holdout_actors = np.unique(holdout_groups)
+    if len(unique_holdout_actors) >= 2:
+        gss2 = GroupShuffleSplit(n_splits=1, test_size=0.50, random_state=seed)
+        rel_val_idx, rel_test_idx = next(gss2.split(holdout_idx, groups=holdout_groups))
+        val_idx = holdout_idx[rel_val_idx]
+        test_idx = holdout_idx[rel_test_idx]
+    else:
+        val_idx = np.array([], dtype=holdout_idx.dtype)
+        test_idx = holdout_idx
 
     train_actors = sorted(metadata_df.iloc[train_idx]["actor_id"].unique().tolist())
     val_actors = sorted(metadata_df.iloc[val_idx]["actor_id"].unique().tolist())
