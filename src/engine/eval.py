@@ -29,6 +29,13 @@ def evaluate(model: torch.nn.Module, loader, device: torch.device, num_classes: 
         all_logits.append(flat_logits.cpu().numpy())
         all_labels.append(flat_labels.cpu().numpy())
 
+    if not all_logits or not all_labels:
+        return {"accuracy": 0.0, "F1": 0.0, "mAP": 0.0}
+
     logits_np = np.concatenate(all_logits, axis=0)
     labels_np = np.concatenate(all_labels, axis=0)
+
+    if logits_np.shape[0] == 0 or labels_np.shape[0] == 0:
+        return {"accuracy": 0.0, "F1": 0.0, "mAP": 0.0}
+
     return compute_metrics(logits_np, labels_np, num_classes=num_classes)

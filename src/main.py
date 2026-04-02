@@ -74,8 +74,16 @@ def save_run_context(cfg: Dict, split_info, out_dir: Path):
 def append_results_csv(csv_path: Path, row: Dict):
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     write_header = not csv_path.exists()
+    fieldnames = list(row.keys())
+    if not write_header:
+        with open(csv_path, "r", newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            existing_header = next(reader, None)
+        if existing_header:
+            fieldnames = existing_header
+
     with open(csv_path, "a", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(row.keys()))
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         if write_header:
             writer.writeheader()
         writer.writerow(row)
