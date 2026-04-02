@@ -23,16 +23,34 @@ from utils.visualization import plot_metric_bar
 def collate_batch(samples):
     keys = samples[0].keys()
     out = {}
+    pad_value_by_key = {
+        "labels": -100,  # ignore_index for cross-entropy
+    }
     for k in keys:
         vals = [s[k] for s in samples]
         if torch.is_tensor(vals[0]):
-            if vals[0].ndim > 0:
-                t_len = vals[0].shape[0]
-                for i, v in enumerate(vals):
-                    assert v.shape[0] == t_len, f"Inconsistent sequence length in batch for key '{k}' at {i}"
-            out[k] = torch.stack(vals, dim=0)
+            if vals[0].ndim == 0:
+                out[k] = torch.stack(vals, dim=0)
+                continue
+
+            max_t = max(v.shape[0] for v in vals)
+            padded_vals = []
+            for v in vals:
+                if v.shape[0] == max_t:
+                    padded_vals.append(v)
+                    continue
+
+                pad_shape = (max_t - v.shape[0],) + tuple(v.shape[1:])
+                pad_value = pad_value_by_key.get(k, 0.0)
+                pad_tensor = torch.full(pad_shape, pad_value, dtype=v.dtype)
+                padded_vals.append(torch.cat([v, pad_tensor], dim=0))
+
+            out[k] = torch.stack(padded_vals, dim=0)
         else:
             out[k] = vals
+
+    if "labels" in out and torch.is_tensor(out["labels"]):
+        out["valid_mask"] = out["labels"] != -100
     return out
 
 

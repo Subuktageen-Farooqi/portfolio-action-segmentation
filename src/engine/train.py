@@ -25,6 +25,7 @@ def train_one_epoch(model, loader, optimizer, device, num_classes: int, label_sm
             logits.reshape(-1, num_classes),
             labels.reshape(-1),
             label_smoothing=label_smoothing,
+            ignore_index=-100,
         )
 
         optimizer.zero_grad(set_to_none=True)
