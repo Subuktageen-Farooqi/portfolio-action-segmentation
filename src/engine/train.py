@@ -54,7 +54,8 @@ def fit(
     history = {"train_loss": [], "val_mAP": [], "val_F1": [], "val_accuracy": []}
     best_score = -1.0
     bad_epochs = 0
-    best_path = out_dir / "checkpoints" / "best.pt"
+    experiment_name = cfg["experiment"]["name"]
+    best_path = out_dir / "checkpoints" / f"{experiment_name}_best.pt"
 
     for epoch in range(1, epochs + 1):
         train_loss = train_one_epoch(model, train_loader, optimizer, device, num_classes, label_smoothing)
