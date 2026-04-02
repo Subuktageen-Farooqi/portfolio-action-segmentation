@@ -1,0 +1,35 @@
+experiment:
+  name: "E6_best_tuned"
+
+data:
+  root: "./data"
+  split_strategy: "group_actor"
+  num_workers: 4
+  metadata_file: "metadata.csv"
+
+modalities:
+  use_rgb: true
+  use_keypoints: true
+  use_boxes: true
+  use_masks: false
+
+model:
+  backbone: "resnet18"
+  temporal: "transformer"
+  fusion: "gated"
+  hidden_dim: 256
+  num_classes: 11
+
+training:
+  epochs: 40
+  batch_size: 8
+  lr: 0.0005
+  weight_decay: 1e-4
+  seed: 42
+  patience: 10
+  label_smoothing: 0.05
+  class_weights: null
+
+evaluation:
+  metrics: ["mAP", "F1", "accuracy"]
+  save_best: true
